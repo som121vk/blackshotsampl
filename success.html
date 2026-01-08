@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed | Blackshot Toy Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container nav-wrapper">
+            <div class="logo">
+                <a href="index.html" style="text-decoration: none; color: inherit;">
+                    <i class="fas fa-rocket"></i> BLACKSHOT
+                </a>
+            </div>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Success Content -->
+    <section class="container">
+        <div class="success-container">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Order Confirmed!</h1>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">
+                Thank you for your purchase. Your order has been received.
+            </p>
+
+            <div class="order-id">
+                Order ID: <span id="order-id-display">Loading...</span>
+            </div>
+
+            <div
+                style="text-align: left; background: var(--bg-light); padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="margin-bottom: 15px;">Order Details</h3>
+                <div id="shipping-details"></div>
+                <div style="margin-top: 15px;">
+                    <strong>Payment Method:</strong> <span id="payment-method"></span>
+                </div>
+            </div>
+
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 20px 0;">
+                A confirmation email has been sent to your registered email address.
+            </p>
+
+            <a href="index.html" class="btn btn-primary" style="display: inline-block; margin-top: 20px;">
+                <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-col">
+                <h3>BLACKSHOT</h3>
+                <p>Premium toy store for the modern family.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Display order ID
+            const orderId = localStorage.getItem('order_id') || 'N/A';
+            document.getElementById('order-id-display').textContent = orderId;
+
+            // Display payment method
+            const paymentMethod = localStorage.getItem('payment_method') || 'N/A';
+            const methodNames = {
+                'card': 'Credit/Debit Card',
+                'upi': 'UPI',
+                'cod': 'Cash on Delivery'
+            };
+            document.getElementById('payment-method').textContent = methodNames[paymentMethod] || paymentMethod;
+
+            // Display shipping details
+            const shippingInfo = JSON.parse(localStorage.getItem('shipping_info') || '{}');
+            const shippingDetails = document.getElementById('shipping-details');
+
+            if (shippingInfo.fullname) {
+                shippingDetails.innerHTML = `
+                    <div><strong>Shipping To:</strong></div>
+                    <div>${shippingInfo.fullname}</div>
+                    <div>${shippingInfo.address}</div>
+                    <div>${shippingInfo.city}, ${shippingInfo.state} - ${shippingInfo.pincode}</div>
+                    <div style="margin-top: 10px;"><strong>Contact:</strong></div>
+                    <div>${shippingInfo.email}</div>
+                    <div>${shippingInfo.phone}</div>
+                `;
+            }
+
+            // Clean up localStorage (optional - keep order info for order history if needed)
+            // localStorage.removeItem('order_id');
+            // localStorage.removeItem('payment_method');
+            // localStorage.removeItem('shipping_info');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return & Refund Policy | Blackshot</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .policy-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .policy-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .policy-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .policy-section {
+            margin-bottom: 30px;
+        }
+
+        .policy-section h2 {
+            font-size: 1.4rem;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .policy-section p {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .video-alert {
+            background: #fff3cd;
+            border: 2px solid #ffcc00;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            color: #856404;
+        }
+
+        .video-alert h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-rocket"></i> BLACKSHOT
+                </a>
+            </div>
+            <div class="nav-icons">
+                <a href="index.html">Home</a>
+                <a href="account.html"><i class="fas fa-user"></i> Account</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="policy-container">
+            <div class="policy-header">
+                <h1>Return & Refund Policy</h1>
+                <p>Ensuring your satisfaction with every purchase.</p>
+            </div>
+
+            <div id="policy-content">
+                <!-- Content loaded from Store -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-col">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Makrand Nagar, Kannauj 209726</p>
+                <p><i class="fas fa-phone"></i> +91 7985804343</p>
+                <p><i class="fas fa-envelope"></i> shauryayadav1842@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Blackshot Toy Store. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/store.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const policies = Store.getPolicies();
+            if (policies && policies.refund) {
+                document.getElementById('policy-content').innerHTML = policies.refund;
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Blackshot Toy Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Admin Specific Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--radius);
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        #login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--text-dark);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Login Overlay -->
+    <!-- Login Overlay -->
+    <div id="login-overlay">
+        <h2>Admin Login</h2>
+
+        <!-- Step 1: Password -->
+        <div id="login-step-1" style="margin-top: 20px;">
+            <input type="password" id="admin-password" placeholder="Enter Password"
+                style="padding: 10px; border-radius: 5px; border: none;">
+            <button class="btn btn-primary" onclick="checkLogin()">Login</button>
+        </div>
+
+        <!-- Step 2: 2FA (Hidden by default) -->
+        <div id="login-step-2" style="margin-top: 20px; display: none; text-align: center;">
+            <p style="margin-bottom: 10px;">Enter 2FA Code</p>
+            <input type="text" id="admin-2fa-code" placeholder="6-digit code" maxlength="6"
+                style="padding: 10px; border-radius: 5px; border: none; text-align: center; letter-spacing: 2px;">
+            <button class="btn btn-primary" onclick="verifyLogin2FA()">Verify</button>
+        </div>
+
+        <p id="login-error" style="color: #ff6b6b; margin-top: 10px; display: none;">Incorrect Password</p>
+    </div>
+
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="logo">
+            <i class="fas fa-rocket"></i> BLACKSHOT ADMIN
+        </div>
+        <div>
+            <button onclick="switchTab('products')" id="tab-products" class="btn btn-outline"
+                style="color: white; border-color: white; margin-right: 10px;">Products</button>
+            <button onclick="switchTab('categories')" id="tab-categories" class="btn btn-outline"
+                style="color: white; border-color: white; margin-right: 10px;">Categories</button>
+            <button onclick="switchTab('design')" id="tab-design" class="btn btn-outline"
+                style="color: white; border-color: white; margin-right: 10px;">Website Design</button>
+            <button onclick="switchTab('upi')" id="tab-upi" class="btn btn-outline"
+                style="color: white; border-color: white; margin-right: 10px;">UPI Settings</button>
+            <button onclick="switchTab('orders')" id="tab-orders" class="btn btn-outline"
+                style="color: white; border-color: white; margin-right: 10px;">Pending Orders <span id="pending-count"
+                    style="background: #ffc107; color: #000; padding: 2px 8px; border-radius: 10px; margin-left: 5px;">0</span></button>
+            <button onclick="switchTab('history')" id="tab-history" class="btn btn-outline"
+                style="color: white; border-color: white; margin-right: 10px;">Order History</button>
+            <button onclick="switchTab('security')" id="tab-security" class="btn btn-outline"
+                style="color: white; border-color: white; margin-right: 10px;">Security</button>
+            <button onclick="switchTab('help')" id="tab-help" class="btn btn-outline"
+                style="color: white; border-color: white; margin-right: 10px;">Help & Support</button>
+            <button onclick="switchTab('policies')" id="tab-policies" class="btn btn-outline"
+                style="color: white; border-color: white; margin-right: 10px;">Policies</button>
+            <a href="index.html" class="btn btn-outline"
+                style="color: white; border-color: white; margin-right: 10px;">View Store</a>
+            <button onclick="logout()" class="btn btn-primary">Logout</button>
+        </div>
+    </div>
+
+    <div class="container admin-container">
+        <!-- Products Tab -->
+        <div id="products-tab" class="admin-tab">
+            <div class="admin-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Product Management</h2>
+                    <button class="btn btn-primary" onclick="openModal()">+ Add New Product</button>
+                </div>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="product-table-body">
+                        <!-- Products Injected Here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Categories Tab -->
+        <div id="categories-tab" class="admin-tab" style="display: none;">
+            <div class="admin-card">
+                <h2 style="margin-bottom: 20px;">Category Management</h2>
+
+                <form id="category-form"
+                    style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                    <div style="display: flex; gap: 15px;">
+                        <input type="text" id="new-category-name" placeholder="Category Name (e.g. Lego)" required
+                            style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                        <input type="file" id="cat-image-file" accept="image/*"
+                            style="flex: 1; padding: 7px; background: white; border-radius: 8px; border: 1px solid #ddd;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="align-self: flex-start;">+ Create
+                        Category</button>
+                </form>
+
+                <div id="categories-list"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                    <!-- Categories injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Website Design Tab -->
+        <div id="design-tab" class="admin-tab" style="display: none;">
+            <div class="admin-card">
+                <h2 style="margin-bottom: 20px;">Homepage Design</h2>
+
+                <div class="design-section" style="margin-bottom: 40px;">
+                    <h3 style="margin-bottom: 15px; border-bottom: 2px solid var(--primary-red); padding-bottom: 10px;">
+                        Hero Slider Images</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">Add images for the main top slider.
+                        Recommended size: 1920x600px.</p>
+
+                    <form id="hero-banner-form" style="margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label>Upload Image</label>
+                            <input type="file" id="hero-banner-file" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Hero Banner</button>
+                    </form>
+
+                    <div id="hero-banners-list" class="banners-grid">
+                        <!-- Hero banners injected here -->
+                    </div>
+                </div>
+
+                <div class="design-section">
+                    <h3 style="margin-bottom: 15px; border-bottom: 2px solid var(--primary-red); padding-bottom: 10px;">
+                        Middle Banner Section</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">Add images for the middle "blank images"
+                        section. Recommended size: 600x400px.</p>
+
+                    <form id="middle-banner-form" style="margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label>Upload Image</label>
+                            <input type="file" id="middle-banner-file" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Middle Banner</button>
+                    </form>
+
+                    <div id="middle-banners-list" class="banners-grid">
+                        <!-- Middle banners injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UPI Settings Tab -->
+        <div id="upi-tab" class="admin-tab" style="display: none;">
+            <div class="admin-card">
+                <h2 style="margin-bottom: 20px;">UPI Payment Settings</h2>
+                <form id="upi-settings-form">
+                    <div class="form-group">
+                        <label>UPI ID</label>
+                        <input type="text" id="upi-id-input" placeholder="yourname@upi" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>UPI QR Code Image</label>
+                        <input type="file" id="upi-qr-upload" accept="image/*" required>
+                        <small style="color: var(--text-muted); display: block; margin-top: 5px;">Upload a QR code image
+                            for UPI payments</small>
+                    </div>
+
+                    <div id="current-qr-preview" style="margin: 20px 0;"></div>
+
+                    <button type="submit" class="btn btn-primary">Save UPI Settings</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Pending Orders Tab -->
+        <div id="orders-tab" class="admin-tab" style="display: none;">
+            <div class="admin-card">
+                <h2 style="margin-bottom: 20px;">Pending Orders</h2>
+                <div id="pending-orders-list">
+                    <!-- Pending orders will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Order History Tab -->
+        <div id="history-tab" class="admin-tab" style="display: none;">
+            <div class="admin-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Order History</h2>
+                    <div>
+                        <select id="status-filter" onchange="loadOrderHistory()"
+                            style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                            <option value="all">All Orders</option>
+                            <option value="approved">Approved</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="returned">Returned</option>
+                            <option value="failed">Failed</option>
+                            <option value="damaged">Damaged</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="order-history-list">
+                    <!-- Order history will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Settings Tab -->
+        <div id="security-tab" class="admin-tab" style="display: none;">
+            <div class="admin-card">
+                <h2 style="margin-bottom: 20px;">Security Settings</h2>
+
+                <!-- Change Password -->
+                <div style="margin-bottom: 40px;">
+                    <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--primary-red);">
+                        Change Password</h3>
+                    <form id="change-password-form">
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="current-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="new-password" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <input type="password" id="confirm-password" required minlength="6">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </form>
+                </div>
+
+                <!-- 2FA Settings -->
+                <div>
+                    <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--primary-red);">
+                        Two-Factor Authentication (2FA)</h3>
+
+                    <div id="2fa-status-section"
+                        style="background: var(--bg-light); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>Status:</strong> <span id="2fa-status-text">Disabled</span>
+                            </div>
+                            <button id="toggle-2fa-btn" class="btn btn-primary" onclick="toggle2FA()">Enable
+                                2FA</button>
+                        </div>
+                    </div>
+
+                    <!-- 2FA Setup Instructions -->
+                    <div id="2fa-setup"
+                        style="display: none; background: #e8f5e9; padding: 20px; border-radius: 8px; border-left: 4px solid #4caf50;">
+                        <h4 style="margin-bottom: 15px;">How to Enable 2FA:</h4>
+                        <ol style="margin: 10px 0; padding-left: 25px;">
+                            <li style="margin-bottom: 10px;">Download an authenticator app (Google Authenticator, Authy,
+                                Microsoft Authenticator)</li>
+                            <li style="margin-bottom: 10px;">Scan the QR code below with your authenticator app</li>
+                            <li style="margin-bottom: 10px;">Enter the 6-digit code from your app to verify</li>
+                            <li style="margin-bottom: 10px;">Save your backup codes in a safe place</li>
+                        </ol>
+
+                        <div id="2fa-qr-section" style="text-align: center; margin: 20px 0;">
+                            <!-- QR code will be generated here -->
+                        </div>
+
+                        <div class="form-group">
+                            <label>Enter 6-digit code from authenticator app</label>
+                            <input type="text" id="2fa-verify-code" placeholder="000000" maxlength="6" pattern="\d{6}">
+                        </div>
+
+                        <div id="backup-codes-section"
+                            style="display: none; background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <h4>Backup Codes</h4>
+                            <p style="font-size: 0.9rem; margin: 10px 0;">Save these codes in a safe place. You can use
+                                them to login if you lose access to your authenticator app:</p>
+                            <div id="backup-codes"
+                                style="font-family: monospace; background: white; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                                <!-- Backup codes will be displayed here -->
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="verify2FA()">Verify & Enable</button>
+                        <button class="btn btn-outline" onclick="cancel2FASetup()"
+                            style="margin-left: 10px;">Cancel</button>
+                    </div>
+
+                    <!-- 2FA Guide -->
+                    <div
+                        style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #2196f3;">
+                        <h4 style="margin-bottom: 10px;"><i class="fas fa-info-circle"></i> About 2FA</h4>
+                        <p style="font-size: 0.9rem; margin-bottom: 10px;">
+                            Two-Factor Authentication adds an extra layer of security to your admin account.
+                            Even if someone knows your password, they cannot login without the code from your
+                            authenticator app.
+                        </p>
+                        <p style="font-size: 0.9rem; margin-bottom: 0;">
+                            <strong>Note:</strong> This is a mock 2FA implementation. For production, you should use a
+                            proper 2FA library
+                            like <code>speakeasy</code> (Node.js) or integrate with services like Auth0.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Support Tab -->
+        <div id="help-tab" class="admin-tab" style="display: none;">
+            <div class="admin-card">
+                <h2 style="margin-bottom: 20px;">Support Tickets</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Subject</th>
+                            <th>Message</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tickets-table-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Policies Tab -->
+    <div id="policies-tab" class="admin-tab" style="display: none;">
+        <div class="container-fluid">
+            <h2 style="margin-bottom: 20px;">Edit Store Policies</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="card" style="padding: 20px; background: white; border-radius: 8px;">
+                    <h3>Shipping Policy (HTML)</h3>
+                    <p style="font-size: 0.8rem; color: #777;">Edit the HTML content for the Shipping Page.</p>
+                    <textarea id="policy-shipping"
+                        style="width: 100%; height: 400px; padding: 10px; font-family: monospace; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                </div>
+                <div class="card" style="padding: 20px; background: white; border-radius: 8px;">
+                    <h3>Refund Policy (HTML)</h3>
+                    <p style="font-size: 0.8rem; color: #777;">Edit the HTML content for the Refund Page.</p>
+                    <textarea id="policy-refund"
+                        style="width: 100%; height: 400px; padding: 10px; font-family: monospace; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                </div>
+            </div>
+            <button onclick="savePolicies()" class="btn btn-primary" style="margin-top: 20px; padding: 10px 30px;">Save
+                Changes</button>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="modal" id="product-modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title" style="margin-bottom: 20px;">Add Product</h2>
+
+            <form id="product-form">
+                <input type="hidden" id="product-id">
+
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="p-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="p-category" required>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Price (₹)</label>
+                    <input type="number" id="p-price" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Old Price (₹)</label>
+                    <input type="number" id="p-old-price">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="p-desc" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Image URL or Upload</label>
+                    <input type="text" id="p-image-url" placeholder="Paste Image URL">
+                    <div style="margin-top: 5px; font-size: 0.9rem;">OR</div>
+                    <input type="file" id="p-image-file" accept="image/*" style="margin-top: 5px;">
+                </div>
+
+                <div class="form-group">
+                    <label>Specifications (Comma separated)</label>
+                    <input type="text" id="p-specs" placeholder="Material: Plastic, Size: 10cm">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Product</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/store.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackshot - Category</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        Free Shipping on Orders Over ₹999 | Use Code BLACKSHOT10 for 10% Off
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-rocket"></i> BLACKSHOT
+                </a>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="global-search" placeholder="Search for toys, games, and more...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+
+            <div class="nav-icons">
+                <a href="account.html"><i class="fas fa-user"></i> <span>Account</span></a>
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count">0</span>
+                    <span>Cart</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="main-nav">
+        <div class="container">
+            <ul id="category-nav">
+                <!-- Populated by JS -->
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Category Header -->
+    <div class="container section-padding" style="padding-bottom: 20px;">
+        <div class="section-header" style="justify-content: flex-start; gap: 20px; align-items: center;">
+            <a href="index.html" style="color: var(--text-muted);"><i class="fas fa-arrow-left"></i> Back</a>
+            <h2 id="category-title" style="margin: 0; font-size: 2rem;">Category Name</h2>
+        </div>
+        <div class="divider" style="margin-left: 0;"></div>
+    </div>
+
+    <!-- Product Grid -->
+    <section class="container" style="padding-bottom: 60px; min-height: 400px;">
+        <div id="category-products-grid" class="product-grid">
+            <!-- Products injected here -->
+        </div>
+        <div id="no-products-msg" style="display: none; text-align: center; padding: 40px; color: #777;">
+            <h3>No products found in this category yet!</h3>
+            <p>Check back later or browse other categories.</p>
+            <a href="index.html" class="btn btn-primary" style="margin-top: 15px;">Go Home</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-col">
+                <h3>About Blackshot</h3>
+                <p>Premium toy store delivering joy to families across India. Quality, safety, and fun guaranteed.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="shipping-policy.html">Shipping Policy</a></li>
+                    <li><a href="refund-policy.html">Return & Refund Policy</a></li>
+                    <li><a href="admin.html">Admin Login</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Categories</h3>
+                <ul id="footer-categories">
+                    <!-- Dynamic -->
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Makrand Nagar, Kannauj 209726</p>
+                <p><i class="fas fa-phone"></i> +91 7985804343</p>
+                <p><i class="fas fa-envelope"></i> shauryayadav1842@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Blackshot Toy Store. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/store.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Get Category from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryEncoded = urlParams.get('c');
+
+            if (!categoryEncoded) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const categoryName = decodeURIComponent(categoryEncoded);
+            document.title = `${categoryName} - Blackshot`;
+            document.getElementById('category-title').textContent = categoryName;
+
+            // 2. Load Products
+            const allProducts = Store.getProducts();
+            const filteredProducts = allProducts.filter(p =>
+                p.category.toLowerCase().trim() === categoryName.toLowerCase().trim()
+            );
+
+            const grid = document.getElementById('category-products-grid');
+            const noMsg = document.getElementById('no-products-msg');
+
+            if (filteredProducts.length > 0) {
+                grid.innerHTML = filteredProducts.map(p => createProductCard(p)).join('');
+                noMsg.style.display = 'none';
+            } else {
+                grid.innerHTML = '';
+                noMsg.style.display = 'block';
+            }
+
+            // 3. Render Navigation (Standard)
+            const categories = Store.getCategories();
+            const getCatName = (c) => typeof c === 'string' ? c : c.name;
+            const nav = document.getElementById('category-nav');
+
+            nav.innerHTML = categories.slice(0, 8).map(cat =>
+                `<li><a href="category.html?c=${encodeURIComponent(getCatName(cat))}" class="${getCatName(cat) === categoryName ? 'active' : ''}">${getCatName(cat)}</a></li>`
+            ).join('') + '<li><a href="index.html">Home</a></li>';
+
+            // Footer
+            document.getElementById('footer-categories').innerHTML = categories.slice(0, 5).map(c => `<li><a href="category.html?c=${encodeURIComponent(getCatName(c))}">${getCatName(c)}</a></li>`).join('');
+
+            // Cart
+            updateCartCount();
+        });
+
+        // Helper (Duplicated from index logic for simplicity)
+        function createProductCard(product) {
+            return `
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
+                        <button class="add-to-cart-btn" onclick="addToCartPage(${product.id})">
+                            Add to Cart
+                        </button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-cat">${product.category}</div>
+                        <h3>${product.name}</h3>
+                        <div class="product-price">${Store.formatPrice(product.price)}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.addToCartPage = function (id) {
+            Store.addToCart(id, 1);
+            updateCartCount();
+            // Toast
+            const btn = event.target;
+            const text = btn.innerText;
+            btn.innerText = 'Added!';
+            btn.style.background = '#4caf50';
+            setTimeout(() => {
+                btn.innerText = text;
+                btn.style.background = '';
+            }, 1000);
+        };
+    </script>
+</body>
+
+</html>

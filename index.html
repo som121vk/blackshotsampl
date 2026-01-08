@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackshot - Premium Toy Store</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        Free Shipping on Orders Over ₹999 | Use Code BLACKSHOT10 for 10% Off
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-rocket"></i> BLACKSHOT
+                </a>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="global-search" placeholder="Search for toys, games, and more...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+
+            <div class="nav-icons">
+                <a href="account.html"><i class="fas fa-user"></i> <span>Account</span></a>
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count">0</span>
+                    <span>Cart</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu (Categories) -->
+    <nav class="main-nav">
+        <div class="container">
+            <ul id="category-nav">
+                <!-- Categories populated by JS -->
+                <li><a href="#" class="active">Home</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Slider -->
+    <div class="hero-slider-container">
+        <div id="hero-slider" class="hero-slider">
+            <!-- Dynamic Slides from Admin -->
+        </div>
+        <button class="slider-btn prev" onclick="moveSlider(-1)">❮</button>
+        <button class="slider-btn next" onclick="moveSlider(1)">❯</button>
+    </div>
+
+    <!-- Shop By Category (Circles) -->
+    <section class="container section-padding">
+        <div class="section-header center">
+            <h2>Shop By Category</h2>
+            <div class="divider"></div>
+        </div>
+        <div id="category-circles" class="category-circles-grid">
+            <!-- Dynamic Category Circles -->
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="container section-padding bg-light">
+        <div class="section-header">
+            <h2>New Arrivals</h2>
+            <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div id="featured-products" class="product-grid">
+            <!-- Products -->
+        </div>
+    </section>
+
+    <!-- Middle Banners (Dynamic "Blank Images") -->
+    <section class="container section-padding">
+        <div id="middle-banners" class="banner-grid">
+            <!-- Dynamic Banners from Admin -->
+        </div>
+    </section>
+
+    <!-- Best Sellers -->
+    <section class="container section-padding">
+        <div class="section-header">
+            <h2>Best Sellers</h2>
+            <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div id="bestseller-products" class="product-grid">
+            <!-- Products -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-col">
+                <h3>About Blackshot</h3>
+                <p>Premium toy store delivering joy to families across India. Quality, safety, and fun guaranteed.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.instagram.com/being.som_yadav?igsh=MTkzMndzc21sb2ZoZg=="><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="shipping-policy.html">Shipping Policy</a></li>
+                    <li><a href="refund-policy.html">Return & Refund Policy</a></li>
+                    <li><a href="admin.html">Admin Login</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Categories</h3>
+                <ul id="footer-categories">
+                    <!-- Dynamic -->
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Makrand Nagar, Kannauj 209726</p>
+                <p><i class="fas fa-phone"></i> +91 7985804343</p>
+                <p><i class="fas fa-envelope"></i> shauryayadav1842@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Blackshot Toy Store. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/store.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Homepage Specific Logic (Slider etc)
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHomepage();
+        });
+
+        function renderHomepage() {
+            // 1. Render Navigation
+            const categories = Store.getCategories();
+            const nav = document.getElementById('category-nav');
+            // Support both old strings and new object categories
+            const getCatName = (c) => typeof c === 'string' ? c : c.name;
+            const getCatImage = (c) => typeof c === 'string' ? null : c.image;
+
+            nav.innerHTML = categories.slice(0, 8).map(cat =>
+                `<li><a href="category.html?c=${encodeURIComponent(getCatName(cat))}">${getCatName(cat)}</a></li>`
+            ).join('') + '<li><a href="index.html" class="active">Home</a></li>';
+
+            // 2. Render Hero Slider
+            const banners = Store.getBanners();
+            const heroBanners = banners.filter(b => b.section === 'hero');
+            const slider = document.getElementById('hero-slider');
+
+            if (heroBanners.length > 0) {
+                slider.innerHTML = heroBanners.map((b, index) => `
+                    <div class="slide ${index === 0 ? 'active' : ''}">
+                        <img src="${b.image}" alt="Banner">
+                    </div>
+                `).join('');
+                startSlider();
+            } else {
+                // Default Placeholder Banner
+                slider.innerHTML = `<div class="slide active"><img src="https://placehold.co/1920x600/e63946/white?text=Welcome+to+Blackshot" alt="Banner"></div>`;
+            }
+
+            // 3. Render Category Circles
+            const circlesGrid = document.getElementById('category-circles');
+            circlesGrid.innerHTML = categories.map((cat, index) => {
+                const name = getCatName(cat);
+                const image = getCatImage(cat) || `https://placehold.co/150x150?text=${name}`;
+                return `
+                <a href="category.html?c=${encodeURIComponent(name)}" style="text-decoration: none; color: inherit;">
+                    <div class="category-circle">
+                        <div class="circle-img" style="background: white; border: 2px solid #eee; overflow: hidden;">
+                            <img src="${image}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <p>${name}</p>
+                    </div>
+                </a>
+            `}).join('');
+
+            // 4. Render Middle Banners
+            const middleBanners = banners.filter(b => b.section === 'middle');
+            const middleGrid = document.getElementById('middle-banners');
+
+            if (middleBanners.length > 0) {
+                middleGrid.innerHTML = middleBanners.map(b => `
+                    <div class="banner-item">
+                        <img src="${b.image}" alt="Promo">
+                    </div>
+                `).join('');
+            } else {
+                middleGrid.innerHTML = `
+                    <div class="banner-item"><img src="https://placehold.co/600x400?text=New+Collection" alt="Promo"></div>
+                    <div class="banner-item"><img src="https://placehold.co/600x400?text=Best+Prices" alt="Promo"></div>
+                 `;
+            }
+
+            // 5. Render Products
+            // (Handled by app.js essentially, but we can quick render here)
+            const products = Store.getProducts();
+            const grid = document.getElementById('featured-products');
+            if (grid) {
+                grid.innerHTML = products.slice(0, 4).map(p => createProductCard(p)).join('');
+            }
+
+            const best = document.getElementById('bestseller-products');
+            if (best) {
+                best.innerHTML = products.slice(0, 4).reverse().map(p => createProductCard(p)).join('');
+            }
+
+            // Footer Cats
+            document.getElementById('footer-categories').innerHTML = categories.slice(0, 5).map(c => `<li><a href="category.html?c=${encodeURIComponent(getCatName(c))}">${getCatName(c)}</a></li>`).join('');
+        }
+
+        // Helper to replicate app.js card creation locally or reuse if simple
+        function createProductCard(product) {
+            return `
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
+                        <button class="add-to-cart-btn" onclick="addToCartPage(${product.id})">
+                            Add to Cart
+                        </button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-cat">${product.category}</div>
+                        <h3>${product.name}</h3>
+                        <div class="product-price">${Store.formatPrice(product.price)}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Slider Logic
+        let currentSlide = 0;
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            if (slides.length === 0) return;
+            slides.forEach(s => s.classList.remove('active'));
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        function moveSlider(n) {
+            showSlide(currentSlide + n);
+        }
+        function startSlider() {
+            setInterval(() => moveSlider(1), 5000);
+        }
+
+        // Quick cart add wrapper
+        window.addToCartPage = function (id) {
+            Store.addToCart(id, 1);
+            updateCartCount(); // from app.js usually, but we might need to expose it or reload
+            const count = Store.getCartCount();
+            document.getElementById('cart-count').innerText = count;
+            // Simple toast
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = 'Added!';
+            btn.style.background = '#4caf50';
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.background = '';
+            }, 1000);
+        };
+    </script>
+</body>
+
+</html>

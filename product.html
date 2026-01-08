@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details | Blackshot Toy Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container nav-wrapper">
+            <div class="logo">
+                <a href="index.html" style="text-decoration: none; color: inherit;">
+                    <i class="fas fa-rocket"></i> BLACKSHOT
+                </a>
+            </div>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#trending">Trending</a>
+                <a href="index.html#categories">Categories</a>
+            </nav>
+            <div class="nav-icons">
+                <a href="cart.html"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Product Detail -->
+    <section class="container product-detail" id="product-container">
+        <!-- Injected via JS -->
+        <p>Loading product...</p>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="container reviews-section">
+        <h3>Customer Reviews</h3>
+        <div id="reviews-list">
+            <!-- Reviews Injected Here -->
+        </div>
+
+        <div class="admin-card" style="margin-top: 30px;">
+            <h4>Write a Review</h4>
+            <form id="review-form">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="review-name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Rating</label>
+                    <select id="review-rating">
+                        <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
+                        <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
+                        <option value="3">⭐⭐⭐ (3 Stars)</option>
+                        <option value="2">⭐⭐ (2 Stars)</option>
+                        <option value="1">⭐ (1 Star)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Review</label>
+                    <textarea id="review-text" rows="3" required placeholder="Great toy!"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-col">
+                <h3>BLACKSHOT</h3>
+                <p>Premium toy store for the modern family.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/store.js"></script>
+    <script>
+        // Inline script for Product Page logic to keep it simple
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+
+        // Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount(); // from store.js/app.js logic (if shared, but duplicated here for simplicity)
+
+            if (!productId) {
+                document.getElementById('product-container').innerHTML = '<p>Product not found.</p>';
+                return;
+            }
+
+            const product = Store.getProduct(productId);
+            if (!product) {
+                document.getElementById('product-container').innerHTML = '<p>Product not found.</p>';
+                return;
+            }
+
+            // Render Product
+            document.title = `${product.name} | Blackshot`;
+            document.getElementById('product-container').innerHTML = `
+                <div class="detail-image">
+                    <img src="${product.image}" alt="${product.name}">
+                </div>
+                <div class="detail-info">
+                    <div class="product-category">${product.category}</div>
+                    <h1>${product.name}</h1>
+                    <div class="detail-price">${Store.formatPrice(product.price)}</div>
+                    <p style="margin-bottom: 20px;">${product.description}</p>
+                    
+                    <h3>Specifications</h3>
+                    <ul class="specs-list">
+                        ${product.specifications ? product.specifications.map(s => `<li>${s}</li>`).join('') : ''}
+                    </ul>
+                    
+                    <button class="btn btn-primary" onclick="addToCartPage(${product.id})">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                </div>
+             `;
+
+            renderReviews();
+        });
+
+        function addToCartPage(id) {
+            Store.addToCart(id, 1);
+            const product = Store.getProduct(id);
+            document.getElementById('cart-count').textContent = Store.getCartCount();
+            alert(`✓ ${product.name} added to cart!`);
+        }
+
+        function updateCartCount() {
+            const countEl = document.getElementById('cart-count');
+            if (countEl) {
+                countEl.textContent = Store.getCartCount();
+            }
+        }
+
+        // Reviews Logic
+        function renderReviews() {
+            const list = document.getElementById('reviews-list');
+            const reviews = Store.getReviews(productId);
+
+            if (reviews.length === 0) {
+                list.innerHTML = '<p style="color: #777;">No reviews yet. Be the first to review!</p>';
+                return;
+            }
+
+            list.innerHTML = reviews.map(r => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="reviewer-name">${r.name}</span>
+                        <span class="review-date">${r.date}</span>
+                    </div>
+                    <div>${'⭐'.repeat(r.rating)}</div>
+                    <p style="margin-top: 5px;">${r.content}</p>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('review-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('review-name').value;
+            const rating = document.getElementById('review-rating').value;
+            const content = document.getElementById('review-text').value;
+
+            Store.addReview({
+                productId: productId,
+                name,
+                rating,
+                content
+            });
+
+            alert('Review submitted!');
+            e.target.reset();
+            renderReviews();
+        });
+    </script>
+</body>
+
+</html>
